@@ -1,14 +1,21 @@
 import { InputAdornment, Stack, TextField, Typography } from "@mui/material"
 import ALabel from "../atoms/a-label"
 
-const MInput = (props: { label: string, devise: string, description: string }) => {
+const MInput = (props: { label: string, devise: string, description: string, value?: number, onChange?: (value: number) => void }) => {
 
-    const { label, devise, description } = props
+    const { label, devise, description, value, onChange } = props
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = parseFloat(event.target.value)
+        onChange && onChange(newValue)
+    }
 
     return (
         <Stack>
             <TextField
                 type="number"
+                value={value}
+                onChange={handleChange}
                 InputLabelProps={{
                     shrink: true
                 }}

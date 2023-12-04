@@ -1,6 +1,7 @@
 import { Stack, Typography } from "@mui/material"
 import MKpi from "../molecules/m-kpi"
 import { useEffect, useState } from "react"
+import AButton from "../atoms/a-button"
 
 const OResults = (props: { data: any }) => {
 
@@ -35,7 +36,7 @@ const OResults = (props: { data: any }) => {
 
             <MKpi
                 label="quote-part de nouveaux clients"
-                description={`Pour atteindre votre objectif il vous faudra signer ${share} de nouveaux clients.`}
+                description={`Pour atteindre votre objectif il vous faudra signer ${share}€ de nouveaux clients.`}
                 data={share}
                 devise="€"
             />
@@ -45,6 +46,10 @@ const OResults = (props: { data: any }) => {
                 description={`Il vous faut réaliser un closin de ${opportunities} opportunitées sur les 12 prochains mois pour vous permettre d'atteindre votre objectif.`}
                 data={opportunities}
             />
+
+            <AButton variant="contained">
+                Générer le rapport
+            </AButton>
         </Stack>
     )
 }

@@ -1,32 +1,24 @@
-import { Button, Stack, Typography } from "@mui/material"
+import { Stack, Typography } from "@mui/material"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons"
 import { useState } from "react"
 import theme from "../../theme"
-import AButton from "../atoms/a-button"
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 
-const THeader = () => {
-    const [active, setActive] = useState<number>(0)
+interface Matrices {
+    label: string
+    icone: IconDefinition
+}
+
+const THeader = (props: { matrices: Matrices[] }) => {
+
+    const { matrices } = props
+
+    const [active, setActive] = useState<string>('')
     const [hovered, setHovered] = useState<number | null>()
 
-    const matrices = [
-        {
-            label: "Activité commerciale",
-            icone: faHandHoldingDollar
-        },
-        {
-            label: "Team SaaS",
-            icone: faHandHoldingDollar
-        },
-        {
-            label: "Autres",
-            icone: faHandHoldingDollar
-        }
-    ]
-
     return (
-        <Stack maxWidth="300px" width="100%" sx={{ boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
-            <Stack spacing={8} alignItems="center" marginTop="200px" marginBottom="150px">
+        <Stack maxWidth="300px" width="100%" height="100%" sx={{ borderRadius: {xs: '0px 0px 0px 0px', md: '0px 30px 0px 0px'}, boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
+            <Stack spacing={8} alignItems="center" paddingTop="200px" paddingBottom="150px">
                 <Typography variant="h4">
                     Matrices
                 </Typography>
@@ -37,12 +29,12 @@ const THeader = () => {
                             spacing={2}
                             direction="row"
                             padding="15px 15px 15px 50px"
-                            onClick={() => setActive(index)}
+                            onClick={() => setActive(matrice.label)}
                             onMouseEnter={() => setHovered(index)}
                             onMouseLeave={() => setHovered(null)}
                             sx={{
                                 cursor: 'pointer',
-                                background: active === index ? theme.palette.secondary.main :
+                                background: active === matrice.label ? theme.palette.secondary.main :
                                     hovered === index ? theme.palette.primary.main :
                                         'transparent'
                             }}
@@ -54,10 +46,6 @@ const THeader = () => {
                         </Stack>
                     )}
                 </Stack>
-
-                <AButton variant="contained">
-                    Générer le rapport
-                </AButton>
             </Stack>
         </Stack>
     )

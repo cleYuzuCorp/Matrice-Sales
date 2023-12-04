@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Step, StepLabel, Stepper, Typography } from "@mui/material"
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Slide, Stack, Step, StepLabel, Stepper, Typography } from "@mui/material"
 import MInput from "../molecules/m-input"
 import MSlider from "../molecules/m-slider"
 import { FC, useEffect, useState } from "react"
@@ -34,6 +34,7 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
     const [numberAttempts, setNumberAttempts] = useState<number>(0)
 
     const [activeStep, setActiveStep] = useState<number>(0)
+    const [backButtonClicked, setBackButtonClicked] = useState<boolean>(false)
     const [stepValues, setStepValues] = useState<Array<{ source: string; distribution: number; conversionRateStep: number }>>(
         Array.from({ length: steps.length }, () => ({ source: 'Outbound / Prospection', distribution: 0, conversionRateStep: 0 }))
     )
@@ -81,12 +82,14 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
 
     const handleBack = () => {
         if (activeStep !== 0) {
+            setBackButtonClicked(true)
             setActiveStep(activeStep - 1)
         }
     }
 
     const handleNext = () => {
         if (activeStep !== 3) {
+            setBackButtonClicked(false)
             setActiveStep(activeStep + 1)
         }
     }
@@ -172,31 +175,35 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                     Vos sources de leads :
                 </Typography>
 
-                <FormControl>
-                    <InputLabel>Source d'opportunité n°{activeStep + 1}</InputLabel>
-                    <Select
-                        label={`Source d'opportunité n°${activeStep + 1}`}
-                        value={stepValues[activeStep].source}
-                        onChange={handleSourceChange}
-                    >
-                        {options.map((option) => <MenuItem value={option.value}>{option.label}</MenuItem>)}
-                    </Select>
-                </FormControl>
+                <Slide key={activeStep} direction={backButtonClicked ? 'left' : 'right'} in={true} timeout={500}>
+                    <Stack spacing={4} alignItems="center" width="100%">
+                        <FormControl>
+                            <InputLabel>Source d'opportunité n°{activeStep + 1}</InputLabel>
+                            <Select
+                                label={`Source d'opportunité n°${activeStep + 1}`}
+                                value={stepValues[activeStep].source}
+                                onChange={handleSourceChange}
+                            >
+                                {options.map((option) => <MenuItem value={option.value}>{option.label}</MenuItem>)}
+                            </Select>
+                        </FormControl>
 
-                <Stack spacing={4} maxWidth="500px" width="100%">
-                    <MSlider
-                        value={stepValues[activeStep].distribution}
-                        onChange={handleDistributionChange}
-                        label="Répartition de la source"
-                        description={stepValues[activeStep].source}
-                    />
-                    <MSlider
-                        value={stepValues[activeStep].conversionRateStep}
-                        onChange={handleConversionRateStepChange}
-                        label="Taux de conversion"
-                        description={stepValues[activeStep].source}
-                    />
-                </Stack>
+                        <Stack spacing={4} maxWidth="500px" width="100%">
+                            <MSlider
+                                value={stepValues[activeStep].distribution}
+                                onChange={handleDistributionChange}
+                                label="Répartition de la source"
+                                description={stepValues[activeStep].source}
+                            />
+                            <MSlider
+                                value={stepValues[activeStep].conversionRateStep}
+                                onChange={handleConversionRateStepChange}
+                                label="Taux de conversion"
+                                description={stepValues[activeStep].source}
+                            />
+                        </Stack>
+                    </Stack>
+                </Slide>
             </Stack>
 
             <Stack spacing={2} width="100%">

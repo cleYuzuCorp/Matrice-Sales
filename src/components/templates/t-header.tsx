@@ -13,12 +13,22 @@ const THeader = (props: { matrices: Matrices[] }) => {
 
     const { matrices } = props
 
-    const [active, setActive] = useState<string>('')
+    const [active, setActive] = useState<string>('Activité commerciale')
     const [hovered, setHovered] = useState<number | null>()
 
     return (
-        <Stack maxWidth="300px" width="100%" height="100%" sx={{ borderRadius: {xs: '0px 0px 0px 0px', md: '0px 30px 0px 0px'}, boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
-            <Stack spacing={8} alignItems="center" paddingTop="200px" paddingBottom="150px">
+        <Stack
+            maxWidth="200px"
+            minWidth="200px"
+            width="100%"
+            overflow="hidden"
+            flex='1 1 100%'
+            sx={{
+                borderRadius: { xs: '0px 0px 0px 0px', md: '0px 30px 0px 0px' },
+                boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)'
+            }}
+        >
+            <Stack spacing={8} alignItems="center" height="100%" minHeight="100vh" paddingTop="200px" paddingBottom="150px">
                 <Typography variant="h4">
                     Matrices
                 </Typography>
@@ -28,7 +38,8 @@ const THeader = (props: { matrices: Matrices[] }) => {
                         <Stack
                             spacing={2}
                             direction="row"
-                            padding="15px 15px 15px 50px"
+                            alignItems="center"
+                            padding='15px 30px 15px 30px'
                             onClick={() => setActive(matrice.label)}
                             onMouseEnter={() => setHovered(index)}
                             onMouseLeave={() => setHovered(null)}

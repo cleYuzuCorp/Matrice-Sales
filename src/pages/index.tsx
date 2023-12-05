@@ -20,7 +20,7 @@ interface FormData {
 const Home = () => {
 
     const theming = useTheme()
-    const isDesktop = useMediaQuery(theming.breakpoints.up('sm'))
+    const isDesktop = useMediaQuery(theming.breakpoints.up('lg'))
 
     const [formData, setFormData] = useState<FormData>()
     const [page, setPage] = useState<number>(1)
@@ -52,27 +52,29 @@ const Home = () => {
             {isDesktop ? <Stack direction="row" justifyContent="space-between">
                 <THeader matrices={matrices} />
 
-                <Container maxWidth="xl">
-                    <Stack spacing={8} alignItems="center" marginTop="120px" marginBottom="120px">
-                        <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
-                    </Stack>
-                </Container>
+                <Stack spacing={8} alignItems="center" padding="150px 30px 150px 30px">
+                    <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
+                </Stack>
 
-                <Container maxWidth="sm" sx={{ borderRadius: '30px 0px 0px 0px', boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
-                    <Stack spacing={8} alignItems="center" marginTop="200px" marginBottom="150px">
+                <Stack sx={{ borderRadius: '30px 0px 0px 0px', boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
+                    <Stack spacing={8} alignItems="center" padding="200px 30px 150px 30px">
                         <OResults data={formData} />
                     </Stack>
-                </Container>
+                </Stack>
             </Stack> : <Stack>
                 <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
                     <THeader matrices={matrices} />
                 </Drawer>
 
-                {page === 1 ? <Stack spacing={8} alignItems="center" marginTop="75px" marginBottom="75px">
-                    <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
-                </Stack> : page === 2 ? <Stack spacing={8} alignItems="center" marginTop="75px" marginBottom="75px">
-                    <OResults data={formData} />
-                </Stack> : null}
+                {page === 1 ? <Container maxWidth="xl">
+                    <Stack spacing={8} alignItems="center" marginTop="75px" marginBottom="75px">
+                        <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
+                    </Stack>
+                </Container> : page === 2 ? <Container maxWidth="xl">
+                    <Stack spacing={8} alignItems="center" marginTop="75px" marginBottom="75px">
+                        <OResults data={formData} />
+                    </Stack>
+                </Container> : null}
 
                 <BottomNavigation
                     showLabels

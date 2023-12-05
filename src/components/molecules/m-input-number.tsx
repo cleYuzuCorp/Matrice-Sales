@@ -1,7 +1,7 @@
 import { InputAdornment, Stack, TextField, Typography } from "@mui/material"
 import ALabel from "../atoms/a-label"
 
-const MInput = (props: { label: string, devise: string, description: string, value?: number, onChange?: (value: number) => void }) => {
+const MInputNumber = (props: { label: string, devise: string, description: string, value?: number, onChange?: (value: number) => void }) => {
 
     const { label, devise, description, value, onChange } = props
 
@@ -35,4 +35,4 @@ const MInput = (props: { label: string, devise: string, description: string, val
     )
 }
 
-export default MInput
+export default MInputNumber

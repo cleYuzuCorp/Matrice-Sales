@@ -1,7 +1,7 @@
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Slide, Stack, Step, StepLabel, Stepper, Typography } from "@mui/material"
-import MInput from "../molecules/m-input"
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Slide, Stack, Step, StepLabel, Stepper, Typography, useMediaQuery, useTheme } from "@mui/material"
+import MInput from "../molecules/m-input-number"
 import MSlider from "../molecules/m-slider"
-import { FC, useEffect, useState } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import AButton from "../atoms/a-button"
 
 interface OFormBusinessActivityProps {
@@ -17,6 +17,9 @@ interface OFormBusinessActivityProps {
 }
 
 const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit }) => {
+
+    const theming = useTheme()
+    const isDesktop = useMediaQuery(theming.breakpoints.up('sm'))
 
     const steps = [
         "Source n°1",
@@ -146,12 +149,12 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
     ]
 
     return (
-        <Stack spacing={8} alignItems="center">
+        <Stack spacing={8} alignItems="center" textAlign="center">
             <Typography variant="h3">
                 Activité Commerciale
             </Typography>
 
-            <Stack spacing={2} direction="row">
+            <Stack spacing={6} direction={{ xs: 'column', md: 'row' }}>
                 {inputs.map((input) => <MInput
                     label={input.label}
                     devise={input.devise}
@@ -206,14 +209,14 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                 </Slide>
             </Stack>
 
-            <Stack spacing={2} width="100%">
+            {isDesktop ? <Stack spacing={2} width="100%">
                 <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((step) => <Step>
                         <StepLabel>{step}</StepLabel>
                     </Step>)}
                 </Stepper>
 
-                <Stack direction="row" justifyContent="space-around">
+                <Stack direction="row" alignItems="center" justifyContent="space-around">
                     <AButton
                         variant="text"
                         color="colorful"
@@ -232,7 +235,31 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                         Suivant
                     </AButton>
                 </Stack>
-            </Stack>
+            </Stack> : <Stack>
+            <Stack spacing={4} direction="row" alignItems="center">
+                    <AButton
+                        variant="text"
+                        color="colorful"
+                        disabled={activeStep === 0 ? true : false}
+                        onClick={handleBack}
+                    >
+                        {"< Retour"}
+                    </AButton>
+
+                    <Typography variant="body1">
+                        {activeStep + 1}/4
+                    </Typography>
+
+                    <AButton
+                        variant="text"
+                        color="colorful"
+                        disabled={activeStep === 3 ? true : false}
+                        onClick={handleNext}
+                    >
+                        {"Suivant >"}
+                    </AButton>
+                </Stack>
+            </Stack>}
 
             <Stack spacing={4} maxWidth="500px" width="100%">
                 <MSlider

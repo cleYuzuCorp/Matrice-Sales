@@ -23,12 +23,12 @@ const THeader = (props: { matrices: Matrices[] }) => {
             width="100%"
             overflow="hidden"
             flex='1 1 100%'
+            borderRadius={{ xs: '0px 0px 0px 0px', md: '0px 30px 0px 0px' }}
             sx={{
-                borderRadius: { xs: '0px 0px 0px 0px', md: '0px 30px 0px 0px' },
                 boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)'
             }}
         >
-            <Stack spacing={8} alignItems="center" height="100%" minHeight="100vh" paddingTop="200px" paddingBottom="150px">
+            <Stack spacing={8} alignItems="center" height="100%" minHeight="100vh" paddingTop="150px" paddingBottom="150px">
                 <Typography variant="h4">
                     Matrices
                 </Typography>

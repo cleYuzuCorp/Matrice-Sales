@@ -52,12 +52,12 @@ const Home = () => {
             {isDesktop ? <Stack direction="row" justifyContent="space-between">
                 <THeader matrices={matrices} />
 
-                <Stack spacing={8} alignItems="center" padding="150px 30px 150px 30px">
+                <Stack spacing={8} alignItems="center" padding="100px 30px 150px 30px">
                     <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
                 </Stack>
 
-                <Stack sx={{ borderRadius: '30px 0px 0px 0px', boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
-                    <Stack spacing={8} alignItems="center" padding="200px 30px 150px 30px">
+                <Stack minWidth="400px" maxWidth="800px" width="100%" borderRadius="30px 0px 0px 0px" sx={{ boxShadow: '0px 4px 10px 0px rgba(0, 0, 0, 0.25)' }}>
+                    <Stack spacing={8} textAlign="center" padding="150px 30px 150px 30px">
                         <OResults data={formData} />
                     </Stack>
                 </Stack>

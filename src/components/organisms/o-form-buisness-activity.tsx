@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Slide, Stack, Step, StepLabel, Stepper, Typography, useMediaQuery, useTheme } from "@mui/material"
-import MInput from "../molecules/m-input-number"
+import MInputNumber from "../molecules/m-input-number"
 import MSlider from "../molecules/m-slider"
 import { FC, useEffect, useRef, useState } from "react"
 import AButton from "../atoms/a-button"
@@ -154,8 +154,8 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                 Activité Commerciale
             </Typography>
 
-            <Stack spacing={6} direction={{ xs: 'column', md: 'row' }}>
-                {inputs.map((input) => <MInput
+            <Stack spacing={2} direction={{ xs: 'column', md: 'row' }}>
+                {inputs.map((input) => <MInputNumber
                     label={input.label}
                     devise={input.devise}
                     description={input.description}

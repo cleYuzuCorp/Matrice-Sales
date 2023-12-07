@@ -1,4 +1,4 @@
-import { Checkbox, FormControl, FormControlLabel, Stack } from "@mui/material"
+import { Checkbox, FormControlLabel } from "@mui/material"
 import { useState } from "react"
 import theme from "../../theme"
 
@@ -12,25 +12,23 @@ const ACheck = (props: { label: string, error?: string }) => {
         setChecked(event.target.checked)
     }
     return (
-        <Stack>
-            <FormControlLabel
-                label={label + '*'}
-                control={
-                    <Checkbox
-                        value={checked}
-                        onChange={handleCheckChange}
-                        sx={{
-                            color: error && checked === false ? theme.palette.error.main : "inherit"
-                        }}
-                    />
-                }
-                sx={{
-                    '& .MuiFormControlLabel-label': {
+        <FormControlLabel
+            label={label + '*'}
+            control={
+                <Checkbox
+                    value={checked}
+                    onChange={handleCheckChange}
+                    sx={{
                         color: error && checked === false ? theme.palette.error.main : "inherit"
-                    }
-                }}
-            />
-        </Stack>
+                    }}
+                />
+            }
+            sx={{
+                '& .MuiFormControlLabel-label': {
+                    color: error && checked === false ? theme.palette.error.main : "inherit"
+                }
+            }}
+        />
     )
 }
 

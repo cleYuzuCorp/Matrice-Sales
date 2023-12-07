@@ -6,6 +6,7 @@ import MInputText from "../molecules/m-input-text"
 import theme from "../../theme"
 import ACheck from "../atoms/a-check"
 import Chart from "react-apexcharts"
+import { faArrowsDownToPeople, faCalendarDay, faPeopleArrows } from "@fortawesome/free-solid-svg-icons"
 
 const OResults = (props: { data: any }) => {
 
@@ -14,10 +15,13 @@ const OResults = (props: { data: any }) => {
     const [averrageBasket, setAverrageBasket] = useState<number>(0)
     const [share, setShare] = useState<number>(0)
     const [opportunities, setOpportunities] = useState<number>(0)
-    const [stepValues, setStepValues] = useState<Array<{ label: string, valueDeal: number, valueLead: number }>>()
+
     const [stepLabel, setStepLabel] = useState<Array<string>>([])
     const [stepDealValues, setStepDealValues] = useState<Array<number>>([])
     const [stepLeadValues, setStepLeadValues] = useState<Array<number>>([])
+
+    const [contactBase, setContactBase] = useState<number>(0)
+    const [prospectingAction, setProspectingAction] = useState<number>(0)
 
     const [openModal, setOpenModal] = useState<boolean>(false)
     const [firstName, setFirstName] = useState<string>('')
@@ -33,30 +37,39 @@ const OResults = (props: { data: any }) => {
             setAverrageBasket(Math.round(data.averrageBasket + (data.averrageBasket * (data.sell / 100))))
             setShare(Math.round(data.goal - data.wallet))
             if (averrageBasket !== 0) {
-                setOpportunities(Math.round(share / averrageBasket))
+                setOpportunities(Math.round((data.goal - data.wallet) / (data.averrageBasket + (data.averrageBasket * (data.sell / 100)))))
             }
 
-            const newStepLabel = data.stepValues.map((stepValue: { source: string }) => stepValue.source);
+            const newStepLabel = data.stepValues.map((stepValue: { source: string }) => stepValue.source)
 
             const newStepDealValues = data.stepValues.map((stepValue: { distribution: number }) => {
                 if (stepValue && stepValue.distribution !== undefined) {
-                    const valueDeal = Math.round(opportunities * (stepValue.distribution / 100));
-                    return valueDeal;
+                    const valueDeal = Math.round((data.goal - data.wallet) / (data.averrageBasket + (data.averrageBasket * (data.sell / 100))) * (stepValue.distribution / 100))
+                    return valueDeal
                 }
-                return 0;
-            });
+                return 0
+            })
 
             const newStepLeadValues = data.stepValues.map((stepValue: { distribution: number, conversionRateStep: number }) => {
                 if (stepValue && stepValue.distribution !== undefined && stepValue.conversionRateStep !== undefined) {
-                    const valueLead = Math.round(opportunities * (stepValue.distribution / 100) / (stepValue.conversionRateStep / 100));
-                    return isFinite(valueLead) ? valueLead : 0;
+                    const valueLead = Math.round((data.goal - data.wallet) / (data.averrageBasket + (data.averrageBasket * (data.sell / 100))) * (stepValue.distribution / 100) / (stepValue.conversionRateStep / 100))
+                    return isFinite(valueLead) ? valueLead : 0
                 }
-                return 0;
-            });
+                return 0
+            })
 
             setStepLabel(newStepLabel)
             setStepDealValues(newStepDealValues)
             setStepLeadValues(newStepLeadValues)
+
+            stepLabel.map((label, index) => {
+                if (label === 'Outbound / Prospection') {
+                    setContactBase(Math.round(stepLeadValues[index] / (data.conversionRate / 100)))
+                    setProspectingAction(Math.round((stepLeadValues[index] / (data.conversionRate / 100) * data.attempts / (52 - 5)) / 5))
+                }
+            })
+
+
         }
     }, [data])
 
@@ -122,13 +135,15 @@ const OResults = (props: { data: any }) => {
         }
     ]
 
+    console.log(prospectingAction, 'p')
+
     return (
         <Stack spacing={4}>
             <Typography variant="h4">
                 Résultats
             </Typography>
 
-            <Stack direction="row" justifyContent="space-around">
+            <Stack spacing={2}>
                 <MKpi
                     label="panier moyen"
                     description="Le panier moyen d'une opportunité chez vous."
@@ -158,7 +173,6 @@ const OResults = (props: { data: any }) => {
 
             <Chart
                 type="bar"
-                width="100%"
                 height="360px"
                 series={[
                     {
@@ -182,6 +196,11 @@ const OResults = (props: { data: any }) => {
                     colors: [theme.palette.text.secondary, theme.palette.info.main]
                 }}
             />
+
+            <Stack spacing={2}>
+                <MKpi label="Base de contact nécessaire" data={contactBase} icon={faPeopleArrows} />
+                <MKpi label="Nombre d'action de prospection par jour nécessaire" data={prospectingAction} icon={faCalendarDay} />
+            </Stack>
 
             <Modal
                 open={openModal}

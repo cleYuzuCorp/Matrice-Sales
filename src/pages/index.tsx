@@ -1,10 +1,10 @@
-import { BottomNavigation, BottomNavigationAction, Container, Drawer, Stack, ThemeProvider, useMediaQuery, useTheme } from "@mui/material"
+import { BottomNavigation, BottomNavigationAction, Container, Drawer, Stack, ThemeProvider, useMediaQuery } from "@mui/material"
 import theme from "../theme"
 import THeader from "../components/templates/t-header"
 import OFormBuisnessActivity from "../components/organisms/o-form-buisness-activity"
 import OResults from "../components/organisms/o-results"
 import { useState } from "react"
-import { faBars, faChartSimple, faFileLines, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons"
+import { faBars, faCalculator, faChartSimple, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 interface FormData {
@@ -13,14 +13,14 @@ interface FormData {
     averrageBasket: number
     sell: number
     conversionRate: number
-    numberAttempts: number
+    attempts: number
     stepValues: Array<{ source: string; distribution: number; conversionRateStep: number }>
 }
 
 const Home = () => {
 
-    const theming = useTheme()
-    const isDesktop = useMediaQuery(theming.breakpoints.up('lg'))
+    const isMobile = useMediaQuery('(min-width:1060px)')
+    const isDesktop = useMediaQuery('(min-width:1410px)')
 
     const [formData, setFormData] = useState<FormData>()
     const [page, setPage] = useState<number>(1)
@@ -33,15 +33,15 @@ const Home = () => {
     const matrices = [
         {
             label: "Activité commerciale",
-            icone: faHandHoldingDollar
+            icone: faCalculator
         },
         {
             label: "Team SaaS",
-            icone: faHandHoldingDollar
+            icone: faCalculator
         },
         {
             label: "Autres",
-            icone: faHandHoldingDollar
+            icone: faCalculator
         }
     ]
 
@@ -49,10 +49,10 @@ const Home = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            {isDesktop ? <Stack direction="row" justifyContent="space-between">
+            {isMobile ? <Stack direction="row" justifyContent="space-between">
                 <THeader matrices={matrices} />
 
-                <Stack spacing={8} alignItems="center" padding="100px 30px 150px 30px">
+                <Stack minWidth={!isDesktop ? "400px" : undefined} spacing={8} alignItems="center" padding="100px 30px 150px 30px">
                     <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
                 </Stack>
 
@@ -71,7 +71,7 @@ const Home = () => {
                         <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
                     </Stack>
                 </Container> : page === 2 ? <Container maxWidth="xl">
-                    <Stack spacing={8} alignItems="center" marginTop="75px" marginBottom="75px">
+                    <Stack spacing={8} textAlign="center" marginTop="75px" marginBottom="75px">
                         <OResults data={formData} />
                     </Stack>
                 </Container> : null}

@@ -178,9 +178,9 @@ const theme = createTheme({
         MuiStepIcon: {
             styleOverrides: {
                 root: {
-                    color: customColors.lightYellow,
+                    color: customColors.darkBlue,
                     '&.Mui-active, &.Mui-completed': {
-                        color: customColors.darkYellow,
+                        color: customColors.darkBlue,
                         fontWeight: 700
                     }
                 },

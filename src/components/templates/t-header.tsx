@@ -50,7 +50,7 @@ const THeader = (props: { matrices: Matrices[] }) => {
                                         'transparent'
                             }}
                         >
-                            <FontAwesomeIcon icon={matrice.icone} />
+                            <FontAwesomeIcon icon={matrice.icone} color={theme.palette.text.primary} />
                             <Typography variant="body1">
                                 {matrice.label}
                             </Typography>

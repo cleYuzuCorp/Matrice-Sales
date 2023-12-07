@@ -1,7 +1,7 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Slide, Stack, Step, StepLabel, Stepper, Typography, useMediaQuery, useTheme } from "@mui/material"
 import MInputNumber from "../molecules/m-input-number"
 import MSlider from "../molecules/m-slider"
-import { FC, useEffect, useRef, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import AButton from "../atoms/a-button"
 
 interface OFormBusinessActivityProps {
@@ -11,7 +11,7 @@ interface OFormBusinessActivityProps {
         averrageBasket: number
         sell: number
         conversionRate: number
-        numberAttempts: number
+        attempts: number
         stepValues: Array<{ source: string; distribution: number; conversionRateStep: number }>
     }) => void
 }
@@ -19,7 +19,8 @@ interface OFormBusinessActivityProps {
 const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit }) => {
 
     const theming = useTheme()
-    const isDesktop = useMediaQuery(theming.breakpoints.up('sm'))
+    const isMobile = useMediaQuery(theming.breakpoints.up('sm'))
+    const isDesktop = useMediaQuery('(min-width:1410px)')
 
     const steps = [
         "Source n°1",
@@ -34,13 +35,24 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
     const [sell, setSell] = useState<number>(0)
 
     const [conversionRate, setConversionRate] = useState<number>(0)
-    const [numberAttempts, setNumberAttempts] = useState<number>(0)
+    const [attempts, setAttempts] = useState<number>(0)
 
     const [activeStep, setActiveStep] = useState<number>(0)
     const [backButtonClicked, setBackButtonClicked] = useState<boolean>(false)
     const [stepValues, setStepValues] = useState<Array<{ source: string; distribution: number; conversionRateStep: number }>>(
-        Array.from({ length: steps.length }, () => ({ source: 'Outbound / Prospection', distribution: 0, conversionRateStep: 0 }))
+        Array.from({ length: steps.length }, () => ({ source: '', distribution: 0, conversionRateStep: 0 }))
     )
+
+    const[distributionTotal, setDistributionTotal] = useState<number>(0)
+
+    const [options, setOptions] = useState<Array<{ label: string; value: string; disabled?: boolean }>>([
+        { label: "Outbound / Prospection", value: "Outbound / Prospection" },
+        { label: "Inbound", value: "Inbound" },
+        { label: "Partenaires (indirect)", value: "Partenaires (indirect)" },
+        { label: "Réseau", value: "Réseau" },
+        { label: "Event (salon, webinar, ect)", value: "Event (salon, webinar, ect)" },
+        { label: "Autres", value: "Autres" }
+    ])
 
     const handleDataChange = () => {
         onDataSubmit({
@@ -49,23 +61,36 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
             averrageBasket: averrageBasket,
             sell: sell,
             conversionRate: conversionRate,
-            numberAttempts: numberAttempts,
+            attempts: attempts,
             stepValues: stepValues,
         })
     }
 
     useEffect(() => {
         handleDataChange()
-    }, [goal, wallet, averrageBasket, sell, conversionRate, numberAttempts, stepValues])
+    }, [goal, wallet, averrageBasket, sell, conversionRate, attempts, stepValues])
 
     const handleSourceChange = (event: SelectChangeEvent) => {
         const newSource = event.target.value as string
+
         setStepValues((prevValues) => {
             const updatedValues = [...prevValues]
             updatedValues[activeStep] = { ...updatedValues[activeStep], source: newSource }
             return updatedValues
         })
     }
+
+    useEffect(() => {
+        setOptions((prevOptions) => {
+            return prevOptions.map((option) => {
+                const isOptionSelected = stepValues.some((step) => step.source === option.value);
+                return {
+                    ...option,
+                    disabled: isOptionSelected,
+                };
+            });
+        });
+    }, [stepValues])
 
     const handleDistributionChange = (newDistribution: number) => {
         setStepValues((prevValues) => {
@@ -121,40 +146,13 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
         }
     ]
 
-    const options = [
-        {
-            label: "Outbound / Prospection",
-            value: "Outbound / Prospection"
-        },
-        {
-            label: "Inbound",
-            value: "Inbound"
-        },
-        {
-            label: "Partenaires (indirect)",
-            value: "Partenaires (indirect)"
-        },
-        {
-            label: "Réseau",
-            value: "Réseau"
-        },
-        {
-            label: "Event (salon, webinar, ect)",
-            value: "Event (salon, webinar, ect)"
-        },
-        {
-            label: "Autres",
-            value: "Autres"
-        }
-    ]
-
     return (
         <Stack spacing={8} alignItems="center" textAlign="center">
             <Typography variant="h3">
                 Activité Commerciale
             </Typography>
 
-            <Stack spacing={2} direction={{ xs: 'column', md: 'row' }}>
+            <Stack spacing={2} direction={isDesktop ? 'row' : 'column'}>
                 {inputs.map((input) => <MInputNumber
                     label={input.label}
                     devise={input.devise}
@@ -186,8 +184,11 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                                 label={`Source d'opportunité n°${activeStep + 1}`}
                                 value={stepValues[activeStep].source}
                                 onChange={handleSourceChange}
+                                sx={{
+                                    minWidth: '250px'
+                                }}
                             >
-                                {options.map((option) => <MenuItem value={option.value}>{option.label}</MenuItem>)}
+                                {options.map((option) => <MenuItem disabled={option.disabled} value={option.value}>{option.label}</MenuItem>)}
                             </Select>
                         </FormControl>
 
@@ -209,7 +210,7 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                 </Slide>
             </Stack>
 
-            {isDesktop ? <Stack spacing={2} width="100%">
+            {isMobile ? <Stack spacing={2} width="100%">
                 <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((step) => <Step>
                         <StepLabel>{step}</StepLabel>
@@ -236,7 +237,7 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                     </AButton>
                 </Stack>
             </Stack> : <Stack>
-            <Stack spacing={4} direction="row" alignItems="center">
+                <Stack spacing={4} direction="row" alignItems="center">
                     <AButton
                         variant="text"
                         color="colorful"
@@ -269,10 +270,11 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                     description="Entre un acte de prospection et la création d'un RDV"
                 />
                 <MSlider
-                    value={numberAttempts}
-                    onChange={(newNumberAttempts) => setNumberAttempts(newNumberAttempts)}
+                    value={attempts}
+                    onChange={(newattempts) => setAttempts(newattempts)}
                     label="Nombre de tentative"
                     description="Pour contacter une personne"
+                    max={20}
                 />
             </Stack>
         </Stack>

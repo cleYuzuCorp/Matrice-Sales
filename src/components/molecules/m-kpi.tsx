@@ -2,6 +2,7 @@ import { Stack, Typography } from "@mui/material"
 import ALabel from "../atoms/a-label"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
+import theme from "../../theme"
 
 const MKpi = (props: { label: string, description?: string, data: number, devise?: string, icon?: IconProp }) => {
 
@@ -14,7 +15,7 @@ const MKpi = (props: { label: string, description?: string, data: number, devise
                 <Typography variant="h3" sx={{ fontWeight: 700 }}>
                     {data}{devise}
                 </Typography>
-                {icon ? <FontAwesomeIcon icon={icon} size="2x" /> : null}
+                {icon ? <FontAwesomeIcon icon={icon} size="2x" color={theme.palette.text.primary} /> : null}
             </Stack>
         </Stack>
     )

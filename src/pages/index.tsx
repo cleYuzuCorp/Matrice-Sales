@@ -19,7 +19,7 @@ interface FormData {
 
 const Home = () => {
 
-    const isMobile = useMediaQuery('(min-width:1060px)')
+    const isMobile = useMediaQuery('(min-width:1105px)')
     const isDesktop = useMediaQuery('(min-width:1410px)')
 
     const [formData, setFormData] = useState<FormData>()
@@ -52,7 +52,7 @@ const Home = () => {
             {isMobile ? <Stack direction="row" justifyContent="space-between">
                 <THeader matrices={matrices} />
 
-                <Stack minWidth={!isDesktop ? "400px" : undefined} spacing={8} alignItems="center" padding="100px 30px 150px 30px">
+                <Stack minWidth={!isDesktop ? "450px" : undefined} spacing={8} alignItems="center" padding="100px 30px 150px 30px">
                     <OFormBuisnessActivity onDataSubmit={handleFormSubmit} />
                 </Stack>
 

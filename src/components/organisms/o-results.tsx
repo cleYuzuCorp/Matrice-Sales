@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, Stack, Typography } from "@mui/material"
+import { FormControl, IconButton, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, Stack, Typography } from "@mui/material"
 import MKpi from "../molecules/m-kpi"
 import { useEffect, useState } from "react"
 import AButton from "../atoms/a-button"
@@ -6,7 +6,8 @@ import MInputText from "../molecules/m-input-text"
 import theme from "../../theme"
 import ACheck from "../atoms/a-check"
 import Chart from "react-apexcharts"
-import { faArrowsDownToPeople, faCalendarDay, faPeopleArrows } from "@fortawesome/free-solid-svg-icons"
+import { faArrowsDownToPeople, faCalendarDay, faPeopleArrows, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 const OResults = (props: { data: any }) => {
 
@@ -29,6 +30,7 @@ const OResults = (props: { data: any }) => {
     const [phone, setPhone] = useState<string>('')
     const [email, setEmail] = useState<string>('')
     const [role, setRole] = useState<string>('commercial')
+    const [formSubmitted, setFormSubmitted] = useState<boolean>(false)
 
     const [errors, setErrors] = useState<string>('')
 
@@ -62,14 +64,14 @@ const OResults = (props: { data: any }) => {
             setStepDealValues(newStepDealValues)
             setStepLeadValues(newStepLeadValues)
 
-            stepLabel.map((label, index) => {
-                if (label === 'Outbound / Prospection') {
-                    setContactBase(Math.round(stepLeadValues[index] / (data.conversionRate / 100)))
-                    setProspectingAction(Math.round((stepLeadValues[index] / (data.conversionRate / 100) * data.attempts / (52 - 5)) / 5))
-                }
-            })
-
-
+            if (data.conversionRate) {
+                stepLabel.map((label, index) => {
+                    if (label === 'Outbound / Prospection') {
+                        setContactBase(Math.round(stepLeadValues[index] / (data.conversionRate / 100)))
+                        setProspectingAction(Math.round((stepLeadValues[index] / (data.conversionRate / 100) * data.attempts / (52 - 5)) / 5))
+                    }
+                })
+            }
         }
     }, [data])
 
@@ -79,7 +81,8 @@ const OResults = (props: { data: any }) => {
 
     const handleSubmit = () => {
         if (firstName && lastName && phone && email && role) {
-            console.log('gagné')
+            setFormSubmitted(true)
+            setOpenModal(false)
         } else {
             setErrors('Le champs est requis')
         }
@@ -171,33 +174,40 @@ const OResults = (props: { data: any }) => {
                 </AButton>
             </Stack>
 
-            <Chart
-                type="bar"
-                height="360px"
-                series={[
-                    {
-                        name: 'Transaction à signer',
-                        data: stepDealValues
-                    },
-                    {
-                        name: 'Lead à signer',
-                        data: stepLeadValues
-                    }
-                ]}
-                options={{
-                    xaxis: {
-                        categories: stepLabel,
-                        labels: {
-                            style: {
-                                fontSize: '10px'
-                            }
+            <Stack sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
+                <Chart
+                    type="bar"
+                    height="360px"
+                    series={[
+                        {
+                            name: 'Transaction à signer',
+                            data: stepDealValues
+                        },
+                        {
+                            name: 'Lead à signer',
+                            data: stepLeadValues
                         }
-                    },
-                    colors: [theme.palette.text.secondary, theme.palette.info.main]
-                }}
-            />
+                    ]}
+                    options={{
+                        chart: {
+                            toolbar: {
+                                show: formSubmitted ? true : false
+                            }
+                        },
+                        xaxis: {
+                            categories: stepLabel,
+                            labels: {
+                                style: {
+                                    fontSize: '10px'
+                                }
+                            }
+                        },
+                        colors: [theme.palette.text.secondary, theme.palette.info.main]
+                    }}
+                />
+            </Stack>
 
-            <Stack spacing={2}>
+            <Stack spacing={2} sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
                 <MKpi label="Base de contact nécessaire" data={contactBase} icon={faPeopleArrows} />
                 <MKpi label="Nombre d'action de prospection par jour nécessaire" data={prospectingAction} icon={faCalendarDay} />
             </Stack>
@@ -216,10 +226,26 @@ const OResults = (props: { data: any }) => {
                     alignItems="center"
                     padding="50px"
                     borderRadius="30px"
+                    maxHeight="600px"
+                    height="100%"
+                    overflow="auto"
                     sx={{
+                        position: 'relative',
                         background: theme.palette.background.default
                     }}
                 >
+                    <IconButton
+                        onClick={() => setOpenModal(false)}
+                        sx={{
+                            position: "absolute",
+                            top: '10px',
+                            right: '10px',
+                            width: '40px',
+                            height: '40px'
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </IconButton>
                     <Stack spacing={2}>
                         <Typography variant="h4">
                             Vos coordonnées
@@ -262,9 +288,11 @@ const OResults = (props: { data: any }) => {
                         <ACheck label="J'accepte de recevoir des propositions marketing de YuzuCorp" error={errors} />
                     </Stack>
 
-                    <AButton variant="contained" onClick={handleSubmit}>
-                        Valider
-                    </AButton>
+                    <Stack>
+                        <AButton variant="contained" onClick={handleSubmit}>
+                            Valider
+                        </AButton>
+                    </Stack>
                 </Stack>
             </Modal>
         </Stack>

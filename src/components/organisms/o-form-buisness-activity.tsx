@@ -83,22 +83,32 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
     useEffect(() => {
         setOptions((prevOptions) => {
             return prevOptions.map((option) => {
-                const isOptionSelected = stepValues.some((step) => step.source === option.value);
+                const isOptionSelected = stepValues.some((step) => step.source === option.value)
                 return {
                     ...option,
                     disabled: isOptionSelected,
-                };
-            });
-        });
+                }
+            })
+        })
     }, [stepValues])
 
     const handleDistributionChange = (newDistribution: number) => {
-        setStepValues((prevValues) => {
-            const updatedValues = [...prevValues]
-            updatedValues[activeStep] = { ...updatedValues[activeStep], distribution: newDistribution }
-            return updatedValues
-        })
+        const totalDistribution = stepValues.reduce((sum, step) => sum + step.distribution, 0)
+        const remainingDistribution = 100 - totalDistribution + stepValues[activeStep].distribution
+    
+        if (newDistribution >= 0 && newDistribution <= remainingDistribution) {
+            setStepValues((prevValues) => {
+                const updatedValues = [...prevValues]
+                updatedValues[activeStep] = {
+                    ...updatedValues[activeStep],
+                    distribution: newDistribution,
+                }
+                return updatedValues
+            })
+        }
     }
+    
+    
 
     const handleConversionRateStepChange = (newConversionRateStep: number) => {
         setStepValues((prevValues) => {

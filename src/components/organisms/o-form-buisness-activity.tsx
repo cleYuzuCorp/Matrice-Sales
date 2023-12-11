@@ -29,21 +29,23 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
         "Source n°4"
     ]
 
-    const [goal, setGoal] = useState<number>(0)
-    const [wallet, setWallet] = useState<number>(0)
-    const [averrageBasket, setAverrageBasket] = useState<number>(0)
-    const [sell, setSell] = useState<number>(0)
+    const [goal, setGoal] = useState<number>(450000)
+    const [wallet, setWallet] = useState<number>(100000)
+    const [averrageBasket, setAverrageBasket] = useState<number>(15000)
+    const [sell, setSell] = useState<number>(70)
 
-    const [conversionRate, setConversionRate] = useState<number>(0)
-    const [attempts, setAttempts] = useState<number>(0)
+    const [conversionRate, setConversionRate] = useState<number>(10)
+    const [attempts, setAttempts] = useState<number>(7)
 
     const [activeStep, setActiveStep] = useState<number>(0)
     const [backButtonClicked, setBackButtonClicked] = useState<boolean>(false)
     const [stepValues, setStepValues] = useState<Array<{ source: string; distribution: number; conversionRateStep: number }>>(
-        Array.from({ length: steps.length }, () => ({ source: '', distribution: 0, conversionRateStep: 0 }))
+        [
+            { source: 'Outbound / Prospection', distribution: 80, conversionRateStep: 10 },
+            { source: 'Inbound', distribution: 20, conversionRateStep: 60 },
+            ...Array.from({ length: steps.length - 2 }, () => ({ source: '', distribution: 0, conversionRateStep: 0 }))
+        ]
     )
-
-    const[distributionTotal, setDistributionTotal] = useState<number>(0)
 
     const [options, setOptions] = useState<Array<{ label: string; value: string; disabled?: boolean }>>([
         { label: "Outbound / Prospection", value: "Outbound / Prospection" },
@@ -95,7 +97,7 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
     const handleDistributionChange = (newDistribution: number) => {
         const totalDistribution = stepValues.reduce((sum, step) => sum + step.distribution, 0)
         const remainingDistribution = 100 - totalDistribution + stepValues[activeStep].distribution
-    
+
         if (newDistribution >= 0 && newDistribution <= remainingDistribution) {
             setStepValues((prevValues) => {
                 const updatedValues = [...prevValues]
@@ -107,8 +109,8 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
             })
         }
     }
-    
-    
+
+
 
     const handleConversionRateStepChange = (newConversionRateStep: number) => {
         setStepValues((prevValues) => {
@@ -158,9 +160,19 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
 
     return (
         <Stack spacing={8} alignItems="center" textAlign="center">
-            <Typography variant="h3">
-                Activité Commerciale
-            </Typography>
+            <Stack spacing={2} direction="row" alignItems="center">
+                <img
+                    src="images/logo/logo_yuzu.png"
+                    alt="Logo"
+                    style={{
+                        width: '100px',
+                    }}
+                />
+
+                <Typography variant="h3">
+                    Activité Commerciale
+                </Typography>
+            </Stack>
 
             <Stack spacing={2} direction={isDesktop ? 'row' : 'column'}>
                 {inputs.map((input) => <MInputNumber

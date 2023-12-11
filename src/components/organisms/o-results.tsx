@@ -6,23 +6,27 @@ import MInputText from "../molecules/m-input-text"
 import theme from "../../theme"
 import ACheck from "../atoms/a-check"
 import Chart from "react-apexcharts"
-import { faArrowsDownToPeople, faCalendarDay, faPeopleArrows, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faCalendarDay, faPeopleArrows, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import axios from 'axios'
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
+import { validate as validateEmail } from 'email-validator'
 
 const OResults = (props: { data: any }) => {
 
     const { data } = props
 
-    const [averrageBasket, setAverrageBasket] = useState<number>(0)
-    const [share, setShare] = useState<number>(0)
-    const [opportunities, setOpportunities] = useState<number>(0)
+    const [averrageBasket, setAverrageBasket] = useState<number>(25500)
+    const [share, setShare] = useState<number>(350000)
+    const [opportunities, setOpportunities] = useState<number>(14)
 
-    const [stepLabel, setStepLabel] = useState<Array<string>>([])
-    const [stepDealValues, setStepDealValues] = useState<Array<number>>([])
-    const [stepLeadValues, setStepLeadValues] = useState<Array<number>>([])
+    const [stepLabel, setStepLabel] = useState<Array<string>>(['Outbound / Prospection', 'Inbound'])
+    const [stepDealValues, setStepDealValues] = useState<Array<number>>([11, 3])
+    const [stepLeadValues, setStepLeadValues] = useState<Array<number>>([110, 19])
 
-    const [contactBase, setContactBase] = useState<number>(0)
-    const [prospectingAction, setProspectingAction] = useState<number>(0)
+    const [contactBase, setContactBase] = useState<number>(1100)
+    const [prospectingAction, setProspectingAction] = useState<number>(33)
 
     const [openModal, setOpenModal] = useState<boolean>(false)
     const [firstName, setFirstName] = useState<string>('')
@@ -60,9 +64,11 @@ const OResults = (props: { data: any }) => {
                 return 0
             })
 
-            setStepLabel(newStepLabel)
-            setStepDealValues(newStepDealValues)
-            setStepLeadValues(newStepLeadValues)
+            if (formSubmitted) {
+                setStepLabel(newStepLabel)
+                setStepDealValues(newStepDealValues)
+                setStepLeadValues(newStepLeadValues)
+            }
 
             if (data.conversionRate) {
                 stepLabel.map((label, index) => {
@@ -79,13 +85,144 @@ const OResults = (props: { data: any }) => {
         setRole(event.target.value)
     }
 
+    const getCookie = (name: string): string | null => {
+        const cookies = document.cookie.split(';')
+        for (const cookie of cookies) {
+            const [cookieName, cookieValue] = cookie.split('=').map((c) => c.trim())
+            if (cookieName === name) {
+                return cookieValue
+            }
+        }
+        return null
+    }
+
+    const formv3 = async (email: string, firstname: string, lastname: string, phoneNumber: string, persona: string): Promise<any> => {
+        try {
+            const currentTimestamp = new Date().getTime()
+            const hutk = getCookie("hubspotutk")
+
+            const data = {
+                submittedAt: currentTimestamp,
+                fields: [
+                    {
+                        objectTypeId: "0-1",
+                        name: "firstname",
+                        value: firstname,
+                    },
+                ],
+                context: {
+                    hutk: hutk,
+                    pageUri: "https://orange-plant-081f37110.2.azurestaticapps.net/",
+                    pageName: "Activité",
+                },
+                legalConsentOptions: {
+                },
+            }
+
+            const response = await axios.post('https://api.hsforms.com/submissions/v3/integration/submit/6950252/c402f891-3444-4990-9c2e-56afb360978f', data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            console.log('Form submission successful:', response.data)
+        } catch (error) {
+            console.error('Error submitting form:', error)
+        }
+    }
+
+    const validateEmailFormat = (email: string): boolean => {
+        return validateEmail(email); // Use email-validator library to validate email format
+    };
+
     const handleSubmit = () => {
         if (firstName && lastName && phone && email && role) {
+            if (!validateEmailFormat(email)) {
+                setErrors('Email invalide')
+                console.log(errors)
+                return
+            }
+
             setFormSubmitted(true)
             setOpenModal(false)
+
+            formv3(email, firstName, lastName, phone, role)
         } else {
             setErrors('Le champs est requis')
         }
+    }
+
+    const convertChartToImage = async () => {
+        const chartContainer = document.getElementById('chart-container')
+        if (chartContainer) {
+            const canvas = await html2canvas(chartContainer)
+            return canvas.toDataURL('image/png')
+        }
+        return null
+    }
+
+    const generatePDF = async () => {
+        const pdf = new jsPDF()
+
+        const maxWidth = 150
+        const lineHeight = 10
+
+        const splitOptions = { maxWidth, lineHeight }
+
+        const addTextWithWrap = (text: string, x: number, y: number) => {
+            const splitText = pdf.splitTextToSize(text, maxWidth, splitOptions)
+            pdf.text(splitText, x, y)
+        }
+
+        pdf.addImage('images/logo/logo_yuzu.png', 'PNG', 20, 20, 150, 75)
+
+        pdf.setFont('BD Supper, sans serif', 'bold')
+        pdf.setFontSize(40)
+        addTextWithWrap("Rapport d'Activité", 50, 100)
+
+        pdf.setFont('BD Supper, sans serif', 'bold')
+        pdf.setFontSize(19)
+        addTextWithWrap('Mes informations :', 20, 130)
+
+        pdf.setFont('BD Supper, sans serif', 'normal')
+        pdf.setFontSize(16)
+        addTextWithWrap(`Objectif C.A. défini: ${data.objectif} €/an`, 30, 140)
+        addTextWithWrap(`Embarqué défini: ${data.wallet} €/an`, 30, 150)
+        addTextWithWrap(`Montant moyen d'un première vente: ${data.averrageBasket} €`, 30, 160)
+        addTextWithWrap(`Augmentation Up-Selling et Cross Selling: ${data.sell}%`, 30, 170)
+        addTextWithWrap(`Mes différentes sources:`, 30, 180)
+        data.stepValues.map((stepValue: { distribution: number; source: string; conversionRateStep: number }, index: number) => {
+            addTextWithWrap(`· ${stepValue.distribution}% de mes transactions sont de nature ${stepValue.source} avec ${stepValue.conversionRateStep}% de taux de conversion`, 40, 190 + (index * 10 + index * 5))
+        })
+        addTextWithWrap(`Mon taux de conversion entre un acte de prospection et la création d'un rendez-vous est de ${data.conversionRate}%:`, 30, 250)
+        addTextWithWrap(`Mon nombre de tentative pour contacter une personne est de ${data.conversionRate}%:`, 30, 265)
+
+        pdf.addPage()
+        pdf.setFont('BD Supper, sans serif', 'bold')
+        pdf.setFontSize(19)
+        addTextWithWrap('Mes résultats :', 20, 20)
+
+        pdf.setFont('BD Supper, sans serif', 'normal')
+        pdf.setFontSize(16)
+        addTextWithWrap(`Panier moyen: ${averrageBasket} €`, 30, 30)
+        addTextWithWrap(`Quote-part de nouveaux clients: ${share} €`, 30, 40)
+        addTextWithWrap(`Nombre d'opportunités: ${opportunities}`, 30, 50)
+
+        pdf.setFont('BD Supper, sans serif', 'bold')
+        pdf.setFontSize(19)
+        addTextWithWrap(`Mon Graphique:`, 20, 80)
+
+        const chartImage = await convertChartToImage()
+        if (chartImage) {
+            pdf.addImage(chartImage, 'PNG', 20, 100, 160, 80)
+        }
+
+        const emailParts = email.split('@')
+        const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
+        const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
+        const fileName = `${emailCurrency} - ${firstName} ${lastName} - YuzuCorp - Activite.pdf`
+
+        pdf.save(fileName)
     }
 
     const inputs = [
@@ -138,8 +275,6 @@ const OResults = (props: { data: any }) => {
         }
     ]
 
-    console.log(prospectingAction, 'p')
-
     return (
         <Stack spacing={4}>
             <Typography variant="h4">
@@ -174,7 +309,17 @@ const OResults = (props: { data: any }) => {
                 </AButton>
             </Stack>
 
-            <Stack sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
+            <Stack alignItems="center">
+                <AButton
+                    variant={formSubmitted ? "contained" : "outlined"}
+                    disabled={formSubmitted ? false : true}
+                    onClick={generatePDF}
+                >
+                    Télécharger le PDF
+                </AButton>
+            </Stack>
+
+            <Stack id="chart-container" sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
                 <Chart
                     type="bar"
                     height="360px"
@@ -191,7 +336,7 @@ const OResults = (props: { data: any }) => {
                     options={{
                         chart: {
                             toolbar: {
-                                show: formSubmitted ? true : false
+                                show: false
                             }
                         },
                         xaxis: {

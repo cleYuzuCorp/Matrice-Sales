@@ -29,6 +29,17 @@ const THeader = (props: { matrices: Matrices[] }) => {
             }}
         >
             <Stack spacing={8} alignItems="center" height="100%" minHeight="100vh" paddingTop="150px" paddingBottom="150px">
+                <img
+                    src="images/logo/logo_yuzu.png"
+                    alt="Logo"
+                    style={{
+                        width: '100px',
+                        position: 'absolute',
+                        top: '5px',
+                        left: '5px'
+                    }}
+                />
+
                 <Typography variant="h4">
                     Matrices
                 </Typography>

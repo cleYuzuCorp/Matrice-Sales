@@ -1,16 +1,13 @@
 import { Slider, Stack, Typography } from "@mui/material"
 import ALabel from "../atoms/a-label"
-import theme from "../../theme"
-import { useState } from "react"
 
-const MSlider = (props: { label: string, description: string }) => {
+const MSlider = (props: { label: string, description: string, max?: number, value?: number, onChange?: (value: number) => void }) => {
 
-    const { label, description } = props
+    const { label, description, max, value, onChange } = props
 
-    const [percentage, setPercentage] = useState<number>(0)
-
-    const handleSliderChange = (event: Event, newPercentage: number | number[]) => {
-        setPercentage(newPercentage as number);
+    const handleChange = (event: Event, newValue: number | number[]) => {
+        const newValueAsNumber = newValue as number
+        onChange && onChange(newValueAsNumber)
     }
 
     return (
@@ -18,10 +15,11 @@ const MSlider = (props: { label: string, description: string }) => {
             <ALabel label={label} description={description} />
             <Stack spacing={2} direction="row">
                 <Slider
-                    value={percentage}
-                    onChange={handleSliderChange}
+                    max={max}
+                    value={value}
+                    onChange={handleChange}
                 />
-                <Typography>{percentage}%</Typography>
+                <Typography>{value}{max ? "" : "%"}</Typography>
             </Stack>
         </Stack>
     )

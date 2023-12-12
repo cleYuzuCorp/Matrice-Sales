@@ -2,16 +2,17 @@ import { faCircleInfo } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Stack, Tooltip } from "@mui/material"
 
-const ALabel = (props: { label: string, description: string }) => {
+const ALabel = (props: { label: string, description?: string, size?: string }) => {
 
-    const { label, description } = props
+    const { label, description, size } = props
 
     return (
-        <Stack direction="row">
+        <Stack direction="row" alignItems="center" fontSize={size}>
             {label} {'\u00a0'}
-            <Tooltip title={description} placement="top" arrow>
+
+            {description ? <Tooltip title={description} placement="top" arrow>
                 <FontAwesomeIcon icon={faCircleInfo} />
-            </Tooltip>
+            </Tooltip> : null}
         </Stack>
     )
 }

@@ -1,5 +1,5 @@
-import { Stack } from "@mui/material";
-import Home from "./pages";
+import { Stack } from "@mui/material"
+import Home from "./pages"
 
 function App() {
   return (
@@ -9,4 +9,4 @@ function App() {
   )
 }
 
-export default App;
+export default App

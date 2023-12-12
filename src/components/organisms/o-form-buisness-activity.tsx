@@ -160,20 +160,10 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
 
     return (
         <Stack spacing={8} alignItems="center" textAlign="center">
-            <Stack spacing={2} direction="row" alignItems="center">
-                <img
-                    src="images/logo/logo_yuzu.png"
-                    alt="Logo"
-                    style={{
-                        width: '100px',
-                    }}
-                />
-
-                <Typography variant="h3">
-                    Activité Commerciale
-                </Typography>
-            </Stack>
-
+            <Typography variant="h3">
+                Activité Commerciale
+            </Typography>
+            
             <Stack spacing={2} direction={isDesktop ? 'row' : 'column'}>
                 {inputs.map((input) => <MInputNumber
                     label={input.label}

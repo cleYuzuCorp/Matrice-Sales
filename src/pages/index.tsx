@@ -2,9 +2,9 @@ import { BottomNavigation, BottomNavigationAction, Container, Drawer, Stack, The
 import theme from "../theme"
 import THeader from "../components/templates/t-header"
 import OFormBuisnessActivity from "../components/organisms/o-form-buisness-activity"
-import OResults from "../components/organisms/o-results"
+import OResults from "../components/templates/t-results"
 import { useState } from "react"
-import { faBars, faCalculator, faChartSimple, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons"
+import { faBars, faCalculator, faChartSimple } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 interface FormData {

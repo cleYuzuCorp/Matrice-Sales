@@ -1,23 +1,21 @@
 import { Checkbox, FormControlLabel } from "@mui/material"
-import { useState } from "react"
 import theme from "../../theme"
 
-const ACheck = (props: { label: string, error?: string }) => {
+const ACheck = (props: { label: string, checked: boolean, onChange: (value: boolean) => void, error?: string }) => {
 
-    const { label, error } = props
+    const { label, checked, onChange, error } = props
 
-    const [checked, setChecked] = useState(false)
-
-    const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setChecked(event.target.checked)
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(event.target.checked)
     }
+
     return (
         <FormControlLabel
             label={label + '*'}
             control={
                 <Checkbox
                     value={checked}
-                    onChange={handleCheckChange}
+                    onChange={handleCheckboxChange}
                     sx={{
                         color: error && checked === false ? theme.palette.error.main : "inherit"
                     }}

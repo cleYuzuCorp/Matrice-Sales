@@ -1,17 +1,14 @@
-import { FormControl, IconButton, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, Stack, Typography } from "@mui/material"
+import { Modal, Stack, Typography } from "@mui/material"
 import MKpi from "../molecules/m-kpi"
 import { useEffect, useState } from "react"
 import AButton from "../atoms/a-button"
-import MInputText from "../molecules/m-input-text"
 import theme from "../../theme"
-import ACheck from "../atoms/a-check"
 import Chart from "react-apexcharts"
-import { faCalendarDay, faPeopleArrows, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import axios from 'axios'
+import { faCalendarDay, faPeopleArrows } from "@fortawesome/free-solid-svg-icons"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
-import { validate as validateEmail } from 'email-validator'
+import OFormContact from "../organisms/o-form-contact"
+import axios from "axios"
 
 const OResults = (props: { data: any }) => {
 
@@ -29,14 +26,7 @@ const OResults = (props: { data: any }) => {
     const [prospectingAction, setProspectingAction] = useState<number>(33)
 
     const [openModal, setOpenModal] = useState<boolean>(false)
-    const [firstName, setFirstName] = useState<string>('')
-    const [lastName, setLastName] = useState<string>('')
-    const [phone, setPhone] = useState<string>('')
-    const [email, setEmail] = useState<string>('')
-    const [role, setRole] = useState<string>('commercial')
-    const [formSubmitted, setFormSubmitted] = useState<boolean>(false)
-
-    const [errors, setErrors] = useState<string>('')
+    const [submittedData, setSubmittedData] = useState({ formSubmitted: false, firstName: '', lastName: '', email: '' })
 
     useEffect(() => {
         if (data) {
@@ -64,7 +54,7 @@ const OResults = (props: { data: any }) => {
                 return 0
             })
 
-            if (formSubmitted) {
+            if (submittedData.formSubmitted) {
                 setStepLabel(newStepLabel)
                 setStepDealValues(newStepDealValues)
                 setStepLeadValues(newStepLeadValues)
@@ -79,78 +69,7 @@ const OResults = (props: { data: any }) => {
                 })
             }
         }
-    }, [data])
-
-    const handleDependingChange = (event: SelectChangeEvent) => {
-        setRole(event.target.value)
-    }
-
-    const getCookie = (name: string): string | null => {
-        const cookies = document.cookie.split(';')
-        for (const cookie of cookies) {
-            const [cookieName, cookieValue] = cookie.split('=').map((c) => c.trim())
-            if (cookieName === name) {
-                return cookieValue
-            }
-        }
-        return null
-    }
-
-    const formv3 = async (email: string, firstname: string, lastname: string, phoneNumber: string, persona: string): Promise<any> => {
-        try {
-            const currentTimestamp = new Date().getTime()
-            const hutk = getCookie("hubspotutk")
-
-            const data = {
-                submittedAt: currentTimestamp,
-                fields: [
-                    {
-                        objectTypeId: "0-1",
-                        name: "firstname",
-                        value: firstname,
-                    },
-                ],
-                context: {
-                    hutk: hutk,
-                    pageUri: "https://orange-plant-081f37110.2.azurestaticapps.net/",
-                    pageName: "Activité",
-                },
-                legalConsentOptions: {
-                },
-            }
-
-            const response = await axios.post('https://api.hsforms.com/submissions/v3/integration/submit/6950252/c402f891-3444-4990-9c2e-56afb360978f', data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-
-            console.log('Form submission successful:', response.data)
-        } catch (error) {
-            console.error('Error submitting form:', error)
-        }
-    }
-
-    const validateEmailFormat = (email: string): boolean => {
-        return validateEmail(email); // Use email-validator library to validate email format
-    };
-
-    const handleSubmit = () => {
-        if (firstName && lastName && phone && email && role) {
-            if (!validateEmailFormat(email)) {
-                setErrors('Email invalide')
-                console.log(errors)
-                return
-            }
-
-            setFormSubmitted(true)
-            setOpenModal(false)
-
-            formv3(email, firstName, lastName, phone, role)
-        } else {
-            setErrors('Le champs est requis')
-        }
-    }
+    }, [data, submittedData.formSubmitted])
 
     const convertChartToImage = async () => {
         const chartContainer = document.getElementById('chart-container')
@@ -161,7 +80,7 @@ const OResults = (props: { data: any }) => {
         return null
     }
 
-    const generatePDF = async () => {
+    const generatePDF = async (dowwnload?: boolean) => {
         const pdf = new jsPDF()
 
         const maxWidth = 150
@@ -217,63 +136,39 @@ const OResults = (props: { data: any }) => {
             pdf.addImage(chartImage, 'PNG', 20, 100, 160, 80)
         }
 
-        const emailParts = email.split('@')
+        const emailParts = submittedData.email.split('@')
         const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
         const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
-        const fileName = `${emailCurrency} - ${firstName} ${lastName} - YuzuCorp - Activite.pdf`
+        const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
 
-        pdf.save(fileName)
+        const pdfBlob = pdf.output('blob')
+
+        console.log(pdfBlob)
+
+        const formData = new FormData()
+        formData.append('file', pdfBlob, fileName)
+
+        try {
+            await axios.post('http://192.168.253.175:7071/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+        } catch (error) {
+            console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
+        }
+
+        if (dowwnload) {
+            pdf.save(fileName)
+        }
     }
 
-    const inputs = [
-        {
-            type: "text",
-            label: "Prénom",
-            value: firstName,
-            onChange: (newFirstName: string) => setFirstName(newFirstName)
-        },
-        {
-            type: "text",
-            label: "Nom",
-            value: lastName,
-            onChange: (newLastName: string) => setLastName(newLastName)
-        },
-        {
-            type: "text",
-            label: "Numéro de téléphone",
-            value: phone,
-            onChange: (newPhone: string) => setPhone(newPhone)
-        },
-        {
-            type: "email",
-            label: "Email",
-            value: email,
-            onChange: (newEmail: string) => setEmail(newEmail)
-        }
-    ]
+    const handleFormSubmit = (data: { formSubmitted: boolean, firstName: string, lastName: string, email: string }) => {
+        setSubmittedData(data)
+        generatePDF()
+    }
 
-    const options = [
-        {
-            label: "Commercial",
-            value: "commercial"
-        },
-        {
-            label: "Directeur des ventes",
-            value: "sales manager"
-        },
-        {
-            label: "Directeur Marketing",
-            value: "marketing manager"
-        },
-        {
-            label: "Dirigeant d'une entreprise",
-            value: "company manager"
-        },
-        {
-            label: "Autres",
-            value: "other"
-        }
-    ]
+    console.log(submittedData, 'submit')
 
     return (
         <Stack spacing={4}>
@@ -311,15 +206,15 @@ const OResults = (props: { data: any }) => {
 
             <Stack alignItems="center">
                 <AButton
-                    variant={formSubmitted ? "contained" : "outlined"}
-                    disabled={formSubmitted ? false : true}
-                    onClick={generatePDF}
+                    variant={submittedData.formSubmitted ? "contained" : "outlined"}
+                    disabled={submittedData.formSubmitted ? false : true}
+                    onClick={() => generatePDF(true)}
                 >
                     Télécharger le PDF
                 </AButton>
             </Stack>
 
-            <Stack id="chart-container" sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
+            <Stack id="chart-container" sx={{ filter: !submittedData.formSubmitted ? 'blur(8px)' : null }}>
                 <Chart
                     type="bar"
                     height="360px"
@@ -352,7 +247,7 @@ const OResults = (props: { data: any }) => {
                 />
             </Stack>
 
-            <Stack spacing={2} sx={{ filter: !formSubmitted ? 'blur(8px)' : null }}>
+            <Stack spacing={2} sx={{ filter: !submittedData.formSubmitted ? 'blur(8px)' : null }}>
                 <MKpi label="Base de contact nécessaire" data={contactBase} icon={faPeopleArrows} />
                 <MKpi label="Nombre d'action de prospection par jour nécessaire" data={prospectingAction} icon={faCalendarDay} />
             </Stack>
@@ -366,79 +261,7 @@ const OResults = (props: { data: any }) => {
                     justifyContent: 'center',
                 }}
             >
-                <Stack
-                    spacing={4}
-                    alignItems="center"
-                    padding="50px"
-                    borderRadius="30px"
-                    maxHeight="600px"
-                    height="100%"
-                    overflow="auto"
-                    sx={{
-                        position: 'relative',
-                        background: theme.palette.background.default
-                    }}
-                >
-                    <IconButton
-                        onClick={() => setOpenModal(false)}
-                        sx={{
-                            position: "absolute",
-                            top: '10px',
-                            right: '10px',
-                            width: '40px',
-                            height: '40px'
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faXmark} />
-                    </IconButton>
-                    <Stack spacing={2}>
-                        <Typography variant="h4">
-                            Vos coordonnées
-                        </Typography>
-
-                        <Typography variant="body2">
-                            Une fois le formulaire rempli, vous pourrez: <br />
-                            · Voir les graphiques en fonction de vos paramètres <br />
-                            · Les modifier en temps réel pour ajuster les valeurs <br />
-                            · Enregistrer vos résultats en PDF
-                        </Typography>
-                    </Stack>
-
-                    <Stack spacing={errors ? 2 : 4}>
-                        {inputs.map((input) => <MInputText
-                            type={input.type}
-                            label={input.label}
-                            value={input.value}
-                            onChange={input.onChange}
-                            error={errors}
-                        />)}
-
-                        <FormControl>
-                            <InputLabel>Fonction*</InputLabel>
-                            <Select
-                                label="Fonction"
-                                value={role}
-                                onChange={handleDependingChange}
-                                sx={{
-                                    boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)'
-                                }}
-                            >
-                                {options.map((option) => <MenuItem value={option.value}>{option.label}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Stack>
-
-                    <Stack spacing={2}>
-                        <ACheck label="J'accepte que YuzuCorp enregistre mes données" error={errors} />
-                        <ACheck label="J'accepte de recevoir des propositions marketing de YuzuCorp" error={errors} />
-                    </Stack>
-
-                    <Stack>
-                        <AButton variant="contained" onClick={handleSubmit}>
-                            Valider
-                        </AButton>
-                    </Stack>
-                </Stack>
+                <OFormContact setOpenModal={setOpenModal} onSubmit={handleFormSubmit} />
             </Modal>
         </Stack>
     )

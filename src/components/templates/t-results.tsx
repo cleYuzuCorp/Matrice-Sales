@@ -149,7 +149,7 @@ const OResults = (props: { data: any }) => {
         formData.append('file', pdfBlob, fileName)
 
         try {
-            await axios.post('http://192.168.253.175:7071/api/upload', formData, {
+            await axios.post('http://localhost:7071/api/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

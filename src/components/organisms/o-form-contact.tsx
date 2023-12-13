@@ -1,6 +1,6 @@
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Stack, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material"
+import { Stack, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, FormHelperText } from "@mui/material"
 import theme from "../../theme"
 import AButton from "../atoms/a-button"
 import ACheck from "../atoms/a-check"
@@ -19,7 +19,7 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
     const [lastName, setLastName] = useState<string>('')
     const [phone, setPhone] = useState<string>('')
     const [email, setEmail] = useState<string>('')
-    const [role, setRole] = useState<string>('commercial')
+    const [role, setRole] = useState<string>('')
     const [dataStorage, setDataStorage] = useState<boolean>(false)
     const [marketingProposals, setMarketingProposals] = useState<boolean>(false)
     const [formSubmitted, setFormSubmitted] = useState<boolean>(false)
@@ -32,6 +32,7 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
         role: yup.string().required('Le champ fonction est requis'),
         dataStorage: yup.boolean().oneOf([true], 'Vous devez accepter le stockage des données'),
         marketingProposals: yup.boolean().oneOf([true], 'Vous devez accepter les propositions marketing'),
+        formSubmission: yup.string()
     })
 
     const { clearErrors, setError, formState: { errors } } = useForm({
@@ -40,6 +41,7 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
 
     const handleDependingChange = (event: SelectChangeEvent) => {
         setRole(event.target.value)
+        clearErrors('role')
     }
 
     const getCookie = (name: string): string | null => {
@@ -107,15 +109,18 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                 }
             }
 
-            const response = await axios.post('https://api.hsforms.com/submissions/v3/integration/submit/143339783/6dc0e047-1161-424d-99c1-3dcbed0f4138', JSON.stringify(data), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-
-            console.log('Form submission successful:', response.data)
+            if (process.env.REACT_APP_API_URL) {
+                const response = await axios.post(process.env.REACT_APP_API_URL, JSON.stringify(data), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                console.log('Form submission successful:', response.data)
+                return response
+            }
         } catch (error) {
             console.error('Error submitting form:', error)
+            return error
         }
     }
 
@@ -134,8 +139,13 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
             }, { abortEarly: false })
 
             if (isValid) {
-                setFormSubmitted(true)
-                formv3(email, firstName, lastName, phone, role)
+                const response = await formv3(email, firstName, lastName, phone, role)
+
+                if (response && response.status === 200) {
+                    setFormSubmitted(true)
+                } else {
+                    setError('formSubmission', { type: 'manual', message: 'Erreur lors de la soumission du formulaire, Vérifiez vos informations ou réessayez plus tard.' })
+                }
             }
         } catch (validationErrors: any) {
             validationErrors.inner.forEach((error: { path: any; message: string }) => {
@@ -157,51 +167,77 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
             label: "Prénom",
             error: "firstname",
             value: firstName,
-            onChange: (newFirstName: string) => setFirstName(newFirstName)
+            onChange: (newFirstName: string) => {
+                setFirstName(newFirstName)
+                clearErrors('firstname')
+            }
         },
         {
             type: "text",
             label: "Nom",
             error: "lastname",
             value: lastName,
-            onChange: (newLastName: string) => setLastName(newLastName)
+            onChange: (newLastName: string) => {
+                setLastName(newLastName)
+                clearErrors('lastname')
+            }
         },
         {
             type: "text",
             label: "Numéro de téléphone",
             error: "phone",
             value: phone,
-            onChange: (newPhone: string) => setPhone(newPhone)
+            onChange: (newPhone: string) => {
+                setPhone(newPhone)
+                clearErrors('phone')
+            }
         },
         {
             type: "email",
             label: "Email",
             error: "email",
             value: email,
-            onChange: (newEmail: string) => setEmail(newEmail)
+            onChange: (newEmail: string) => {
+                setEmail(newEmail)
+                clearErrors('email')
+                try {
+                    schema.validateSyncAt('email', { email: newEmail })
+                    clearErrors('email')
+                } catch (error) {
+                    setError('email', { type: 'manual', message: (error as Error).message })
+                }
+            }
         }
     ]
 
     const options = [
         {
             label: "Commercial",
-            value: "commercial"
+            value: "persona_8"
         },
         {
             label: "Directeur des ventes",
-            value: "sales manager"
+            value: "persona_1"
         },
         {
             label: "Directeur Marketing",
-            value: "marketing manager"
+            value: "persona_6"
         },
         {
             label: "Dirigeant d'une entreprise",
-            value: "company manager"
+            value: "persona_2"
         },
         {
-            label: "Autres",
-            value: "other"
+            label: "Sales Ops",
+            value: "persona_7"
+        },
+        {
+            label: "Chef RH",
+            value: "persona_5"
+        },
+        {
+            label: "Autre",
+            value: "persona_9"
         }
     ]
 
@@ -254,20 +290,26 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                     error={(errors[input.error as keyof typeof errors] as any)?.message}
                 />)}
 
-                <FormControl>
+                <FormControl
+                    error={errors['role']?.message ? true : false}
+                    sx={{
+                        boxShadow: errors['role']?.message ? 'none' : '0px 4px 4px 0px rgba(0, 0, 0, 0.25)'
+                    }}
+                >
                     <InputLabel>Fonction*</InputLabel>
                     <Select
                         label="Fonction"
                         value={role}
                         onChange={handleDependingChange}
-                        sx={{
-                            boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)'
-                        }}
+                        sx={{ boxShadow: 'none' }}
                     >
                         {options.map((option, index) => <MenuItem key={index} value={option.value}>
                             {option.label}
                         </MenuItem>)}
                     </Select>
+                    {errors['role']?.message ? <FormHelperText>
+                        {errors['role']?.message}
+                    </FormHelperText> : null}
                 </FormControl>
             </Stack>
 
@@ -286,6 +328,10 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                     error={errors['marketingProposals']?.message}
                 />
             </Stack>
+
+            {errors['formSubmission']?.message ? <Typography variant="body1" color={theme.palette.error.main}>
+                {errors['formSubmission'].message}
+            </Typography> : null}
 
             <Stack>
                 <AButton variant="contained" onClick={handleFormSubmit}>

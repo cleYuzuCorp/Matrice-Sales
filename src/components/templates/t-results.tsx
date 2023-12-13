@@ -147,11 +147,13 @@ const OResults = (props: { data: any }) => {
         formData.append('file', pdfBlob, fileName)
 
         try {
-            await axios.post('http://192.168.253.175:7071/api/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
+            if (process.env.REACT_APP_API_UPLOAD_URL) {
+                await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                })
+            }
         } catch (error) {
             console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
         }
@@ -167,7 +169,7 @@ const OResults = (props: { data: any }) => {
     }
 
     return (
-        <Stack spacing={4}>
+        <Stack spacing={6}>
             <Typography variant="h4">
                 Résultats
             </Typography>
@@ -247,9 +249,28 @@ const OResults = (props: { data: any }) => {
                 />
             </Stack>
 
-            <Stack spacing={2} sx={{ filter: !submittedData.formSubmitted ? 'blur(8px)' : null }}>
-                <MKpi label="Base de contact nécessaire" data={contactBase} icon={faPeopleArrows} />
-                <MKpi label="Nombre d'action de prospection par jour nécessaire" data={prospectingAction} icon={faCalendarDay} />
+            <Stack
+                spacing={2}
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    filter: !submittedData.formSubmitted ? 'blur(8px)' : null
+                }}
+            >
+                <MKpi
+                    variant="h2" 
+                    label="Base de contact nécessaire"
+                    data={contactBase} 
+                    icon={faPeopleArrows}
+                />
+                
+                <MKpi
+                    variant="h2"
+                    label="Nombre d'action de prospection par jour nécessaire"
+                    data={prospectingAction}
+                    icon={faCalendarDay}
+                />
             </Stack>
 
             <Modal

@@ -143,13 +143,11 @@ const OResults = (props: { data: any }) => {
 
         const pdfBlob = pdf.output('blob')
 
-        console.log(pdfBlob)
-
         const formData = new FormData()
         formData.append('file', pdfBlob, fileName)
 
         try {
-            await axios.post('http://localhost:7071/api/upload', formData, {
+            await axios.post('http://192.168.253.175:7071/api/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -167,8 +165,6 @@ const OResults = (props: { data: any }) => {
         setSubmittedData(data)
         generatePDF()
     }
-
-    console.log(submittedData, 'submit')
 
     return (
         <Stack spacing={4}>
@@ -199,7 +195,11 @@ const OResults = (props: { data: any }) => {
             </Stack>
 
             <Stack alignItems="center">
-                <AButton variant="contained" onClick={() => setOpenModal(true)}>
+                <AButton
+                    variant={submittedData.formSubmitted ? "outlined" : "contained"}
+                    disabled={submittedData.formSubmitted ? true : false}
+                    onClick={() => setOpenModal(true)}
+                >
                     Générer le rapport
                 </AButton>
             </Stack>
@@ -261,7 +261,9 @@ const OResults = (props: { data: any }) => {
                     justifyContent: 'center',
                 }}
             >
-                <OFormContact setOpenModal={setOpenModal} onSubmit={handleFormSubmit} />
+                <Stack>
+                    <OFormContact setOpenModal={setOpenModal} onSubmit={handleFormSubmit} />
+                </Stack>
             </Modal>
         </Stack>
     )

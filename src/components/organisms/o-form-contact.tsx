@@ -62,10 +62,30 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                 submittedAt: currentTimestamp,
                 fields: [
                     {
-                        objectTypeId: "0-1",
-                        name: "firstname",
-                        value: firstname,
+                        "objectTypeId": "0-1",
+                        "name": "firstname",
+                        "value": firstname
                     },
+                    {
+                        "objectTypeId": "0-1",
+                        "name": "lastname",
+                        "value": lastname
+                    },
+                    {
+                        "objectTypeId": "0-1",
+                        "name": "phone",
+                        "value": phoneNumber
+                    },
+                    {
+                        "objectTypeId": "0-1",
+                        "name": "email",
+                        "value": email
+                    },
+                    {
+                        objectTypeId: "0-1",
+                        name: "hs_persona",
+                        value: persona
+                    }
                 ],
                 context: {
                     hutk: hutk,
@@ -73,10 +93,21 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                     pageName: "Activité",
                 },
                 legalConsentOptions: {
-                },
+                    "consent": {
+                        "consentToProcess": true,
+                        "text": "I agree to allow Example Company to store and process my personal data.",
+                        "communications": [
+                            {
+                                "value": true,
+                                "subscriptionTypeId": 999,
+                                "text": "I agree to receive marketing communications from Example Company."
+                            }
+                        ]
+                    },
+                }
             }
 
-            const response = await axios.post('https://api.hsforms.com/submissions/v3/integration/submit/6950252/c402f891-3444-4990-9c2e-56afb360978f', data, {
+            const response = await axios.post('https://api.hsforms.com/submissions/v3/integration/submit/143339783/6dc0e047-1161-424d-99c1-3dcbed0f4138', JSON.stringify(data), {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -114,8 +145,8 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
     }
 
     useEffect(() => {
-        onSubmit({ formSubmitted, firstName, lastName, email })
         if (formSubmitted) {
+            onSubmit({ formSubmitted, firstName, lastName, email })
             setOpenModal(false)
         }
     }, [formSubmitted])
@@ -233,7 +264,9 @@ const OFormContact = (props: { setOpenModal: any, onSubmit: any }) => {
                             boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)'
                         }}
                     >
-                        {options.map((option) => <MenuItem value={option.value}>{option.label}</MenuItem>)}
+                        {options.map((option, index) => <MenuItem key={index} value={option.value}>
+                            {option.label}
+                        </MenuItem>)}
                     </Select>
                 </FormControl>
             </Stack>

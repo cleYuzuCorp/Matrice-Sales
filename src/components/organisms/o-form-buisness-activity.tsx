@@ -163,9 +163,10 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
             <Typography variant="h3">
                 Activité Commerciale
             </Typography>
-            
+
             <Stack spacing={2} direction={isDesktop ? 'row' : 'column'}>
-                {inputs.map((input) => <MInputNumber
+                {inputs.map((input, index) => <MInputNumber
+                    key={index}
                     label={input.label}
                     devise={input.devise}
                     description={input.description}
@@ -200,7 +201,10 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
                                     minWidth: '250px'
                                 }}
                             >
-                                {options.map((option) => <MenuItem disabled={option.disabled} value={option.value}>{option.label}</MenuItem>)}
+                                {options.map((option, index) =>
+                                    <MenuItem key={index} disabled={option.disabled} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>)}
                             </Select>
                         </FormControl>
 
@@ -224,7 +228,7 @@ const OFormBuisnessActivity: FC<OFormBusinessActivityProps> = ({ onDataSubmit })
 
             {isMobile ? <Stack spacing={2} width="100%">
                 <Stepper activeStep={activeStep} alternativeLabel>
-                    {steps.map((step) => <Step>
+                    {steps.map((step, index) => <Step key={index}>
                         <StepLabel>{step}</StepLabel>
                     </Step>)}
                 </Stepper>

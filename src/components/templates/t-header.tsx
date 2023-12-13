@@ -47,6 +47,7 @@ const THeader = (props: { matrices: Matrices[] }) => {
                 <Stack spacing={6} width="100%">
                     {matrices.map((matrice, index) =>
                         <Stack
+                            key={index}
                             spacing={2}
                             direction="row"
                             alignItems="center"

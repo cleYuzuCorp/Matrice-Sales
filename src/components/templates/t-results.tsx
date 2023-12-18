@@ -145,8 +145,8 @@ const OResults = (props: { data: any }) => {
 
         const formData = new FormData()
         formData.append('file', pdfBlob, fileName)
-
         try {
+<<<<<<< Updated upstream
             if (process.env.REACT_APP_API_UPLOAD_URL) {
                 await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
                     headers: {
@@ -154,6 +154,14 @@ const OResults = (props: { data: any }) => {
                     },
                 })
             }
+=======
+            await axios.post('http://localhost:7071/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'x-filename':fileName
+                },
+            })
+>>>>>>> Stashed changes
         } catch (error) {
             console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
         }

@@ -105,7 +105,7 @@ const OResults = (props: { data: any }) => {
 
         pdf.setFont('BD Supper, sans serif', 'normal')
         pdf.setFontSize(16)
-        addTextWithWrap(`Objectif C.A. défini: ${data.objectif} €/an`, 30, 140)
+        addTextWithWrap(`Objectif C.A. défini: ${data.goal} €/an`, 30, 140)
         addTextWithWrap(`Embarqué défini: ${data.wallet} €/an`, 30, 150)
         addTextWithWrap(`Montant moyen d'un première vente: ${data.averrageBasket} €`, 30, 160)
         addTextWithWrap(`Augmentation Up-Selling et Cross Selling: ${data.sell}%`, 30, 170)

@@ -145,12 +145,12 @@ const OResults = (props: { data: any }) => {
 
         const formData = new FormData()
         formData.append('file', pdfBlob, fileName)
-
         try {
             if (process.env.REACT_APP_API_UPLOAD_URL) {
                 await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
+                        'x-filename':fileName
                     },
                 })
             }

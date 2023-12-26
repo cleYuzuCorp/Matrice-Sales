@@ -80,6 +80,8 @@ const OResults = (props: { data: any }) => {
         return null
     }
 
+    console.log(submittedData, 'data')
+
     const generatePDF = async (dowwnload?: boolean) => {
         const pdf = new jsPDF()
 
@@ -136,30 +138,32 @@ const OResults = (props: { data: any }) => {
             pdf.addImage(chartImage, 'PNG', 20, 100, 160, 80)
         }
 
-        const emailParts = submittedData.email.split('@')
-        const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
-        const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
-        const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
+        if (submittedData.email && submittedData.firstName && submittedData.lastName) {
+            const emailParts = submittedData.email.split('@')
+            const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
+            const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
+            const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
 
-        const pdfBlob = pdf.output('blob')
+            const pdfBlob = pdf.output('blob')
 
-        const formData = new FormData()
-        formData.append('file', pdfBlob, fileName)
-        try {
-            if (process.env.REACT_APP_API_UPLOAD_URL) {
-                await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        'x-filename':fileName
-                    },
-                })
+            const formData = new FormData()
+            formData.append('file', pdfBlob, fileName)
+            try {
+                if (process.env.REACT_APP_API_UPLOAD_URL) {
+                    await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'x-filename': fileName
+                        },
+                    })
+                }
+            } catch (error) {
+                console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
             }
-        } catch (error) {
-            console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
-        }
 
-        if (dowwnload) {
-            pdf.save(fileName)
+            if (dowwnload) {
+                pdf.save(fileName)
+            }
         }
     }
 
@@ -259,12 +263,12 @@ const OResults = (props: { data: any }) => {
                 }}
             >
                 <MKpi
-                    variant="h2" 
+                    variant="h2"
                     label="Base de contact nécessaire"
-                    data={contactBase} 
+                    data={contactBase}
                     icon={faPeopleArrows}
                 />
-                
+
                 <MKpi
                     variant="h2"
                     label="Nombre d'action de prospection par jour nécessaire"

@@ -168,6 +168,8 @@ const OResults = (props: { data: any }) => {
         generatePDF()
     }
 
+    console.log(REACT_APP_API_URL)
+
     return (
         <Stack spacing={6}>
             <Typography variant="h4">

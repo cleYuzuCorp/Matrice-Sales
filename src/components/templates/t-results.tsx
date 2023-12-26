@@ -82,7 +82,7 @@ const OResults = (props: { data: any }) => {
 
     console.log(submittedData, 'data')
 
-    const generatePDF = async (dowwnload?: boolean) => {
+    const generatePDF = async (download?: boolean) => {
         const pdf = new jsPDF()
 
         const maxWidth = 150
@@ -138,37 +138,35 @@ const OResults = (props: { data: any }) => {
             pdf.addImage(chartImage, 'PNG', 20, 100, 160, 80)
         }
 
-        if (submittedData.email && submittedData.firstName && submittedData.lastName) {
-            const emailParts = submittedData.email.split('@')
-            const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
-            const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
-            const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
+        const emailParts = submittedData.email.split('@')
+        const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
+        const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
+        const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
 
-            const pdfBlob = pdf.output('blob')
+        const pdfBlob = pdf.output('blob')
 
-            const formData = new FormData()
-            formData.append('file', pdfBlob, fileName)
-            try {
-                if (process.env.REACT_APP_API_UPLOAD_URL) {
-                    await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'x-filename': fileName
-                        },
-                    })
-                }
-            } catch (error) {
-                console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
+        const formData = new FormData()
+        formData.append('file', pdfBlob, fileName)
+        try {
+            if (process.env.REACT_APP_API_UPLOAD_URL) {
+                await axios.post(process.env.REACT_APP_API_UPLOAD_URL, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'x-filename': fileName
+                    },
+                })
             }
+        } catch (error) {
+            console.error('Une erreur s\'est produite lors de l\'envoi du fichier PDF :', error)
+        }
 
-            if (dowwnload) {
-                pdf.save(fileName)
-            }
+        if (download) {
+            pdf.save(fileName)
         }
     }
 
-    const handleFormSubmit = (data: { formSubmitted: boolean, firstName: string, lastName: string, email: string }) => {
-        setSubmittedData(data)
+    const handleFormSubmit = async (data: { formSubmitted: boolean, firstName: string, lastName: string, email: string }) => {
+        await setSubmittedData(data)
         generatePDF()
     }
 

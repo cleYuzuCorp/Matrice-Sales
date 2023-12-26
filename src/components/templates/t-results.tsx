@@ -141,7 +141,7 @@ const OResults = (props: { data: any }) => {
         const emailParts = submittedData.email.split('@')
         const emailDomain = emailParts.length === 2 ? emailParts[1].toLowerCase() : ''
         const emailCurrency = emailDomain.replace(/\.[^.]+$/, '')
-        const fileName = `${emailCurrency} - ${submittedData.firstName} ${submittedData.lastName} - YuzuCorp - Activite.pdf`
+        const fileName = `${emailCurrency.normalize("NFD").replace(/[\u0300-\u036f]/g, "")} - ${submittedData.firstName.normalize("NFD").replace(/[\u0300-\u036f]/g, "")} ${submittedData.lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, "")} - YuzuCorp - Activite.pdf`
 
         const pdfBlob = pdf.output('blob')
 

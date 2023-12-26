@@ -167,7 +167,7 @@ const OResults = (props: { data: any }) => {
 
     const handleFormSubmit = async (data: { formSubmitted: boolean, firstName: string, lastName: string, email: string }) => {
         await setSubmittedData(data)
-        generatePDF()
+        await generatePDF()
     }
 
     console.log(process.env.REACT_APP_API_URL, 'url')

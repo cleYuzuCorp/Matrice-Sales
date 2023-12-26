@@ -172,6 +172,9 @@ const OResults = (props: { data: any }) => {
         generatePDF()
     }
 
+    console.log(process.env.REACT_APP_API_URL, 'url')
+    console.log(process.env.REACT_APP_API_UPLOAD_URL, 'upload')
+
     return (
         <Stack spacing={6}>
             <Typography variant="h4">
